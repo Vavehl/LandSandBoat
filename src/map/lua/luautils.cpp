@@ -2171,6 +2171,15 @@ void OnZoneIn(CCharEntity* PChar)
         return;
     }
 
+    if (PChar->m_zoneInCutscene)
+    {
+        ShowDebug("OnZoneIn: clearing stale zone-in cutscene state for %s (zone=%u, eventId=%d, m_zoneInCutscene=%d, m_Locked=%d)",
+                  PChar->getName(),
+                  PChar->getZone(),
+                  PChar->currentEvent->eventId,
+                  PChar->m_zoneInCutscene,
+                  PChar->m_Locked);
+    }
     PChar->m_zoneInCutscene = false;
 
     CZone*      prevZone    = zoneutils::GetZone(PChar->loc.prevzone);
@@ -2215,6 +2224,12 @@ void OnZoneIn(CCharEntity* PChar)
     {
         PChar->currentEvent->type = CUTSCENE;
         PChar->m_zoneInCutscene   = true;
+        ShowDebug("OnZoneIn: starting zone-in cutscene for %s (zone=%u, eventId=%d, m_zoneInCutscene=%d, m_Locked=%d -> 1)",
+                  PChar->getName(),
+                  PChar->getZone(),
+                  PChar->currentEvent->eventId,
+                  PChar->m_zoneInCutscene,
+                  PChar->m_Locked);
         PChar->setLocked(true);
     }
 }

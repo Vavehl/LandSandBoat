@@ -21,6 +21,8 @@
 
 #include <cstring>
 
+#include "common/logging.h"
+
 #include "char_update.h"
 
 #include "entities/charentity.h"
@@ -286,6 +288,13 @@ void CCharUpdatePacket::updateWith(CCharEntity* PChar, ENTITYUPDATE type, uint8 
 
         packet->Flags1.MonsterFlag = false; // TODO: Is this ever set for Monstrosity PVP?
         packet->Flags1.HideFlag    = PChar->m_zoneInCutscene;
+        ShowDebug("char_update: %s (zone=%u, eventId=%d, m_zoneInCutscene=%d, m_Locked=%d, HideFlag=%d)",
+                  PChar->getName(),
+                  PChar->getZone(),
+                  PChar->currentEvent->eventId,
+                  PChar->m_zoneInCutscene,
+                  PChar->m_Locked,
+                  packet->Flags1.HideFlag);
         packet->Flags1.SleepFlag   = 0;                                                                // Something to do with events. // TODO: figure out when/if this is set. Probably when you're in a cutscene?
         packet->Flags1.unknown_0_3 = PChar->loc.zone ? PChar->loc.zone->CanUseMisc(MISC_TREASURE) : 0; // Set global treasure pool
         packet->Flags1.unknown_0_4 = 0;

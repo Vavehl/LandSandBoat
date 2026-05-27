@@ -2938,10 +2938,23 @@ bool CCharEntity::isNpcLocked()
 
 void CCharEntity::endCurrentEvent()
 {
+    const auto previousZoneInCutscene = m_zoneInCutscene;
+    const auto previousLocked         = m_Locked;
+    const auto endingEventId          = currentEvent->eventId;
+    const auto zoneId                 = getZone();
+
     currentEvent->reset();
     eventPreparation->reset();
     setLocked(false);
     m_zoneInCutscene = false;
+    ShowDebug("endCurrentEvent: %s (zone=%u, eventId=%d, m_zoneInCutscene %d->%d, m_Locked %d->%d)",
+              getName(),
+              zoneId,
+              endingEventId,
+              previousZoneInCutscene,
+              m_zoneInCutscene,
+              previousLocked,
+              m_Locked);
     m_Substate       = CHAR_SUBSTATE::SUBSTATE_NONE;
     tryStartNextEvent();
 }
@@ -3071,7 +3084,34 @@ void CCharEntity::setLocked(bool locked)
 {
     TracyZoneScoped;
 
+    const auto previousLocked         = m_Locked;
+    const auto previousZoneInCutscene = m_zoneInCutscene;
     m_Locked = locked;
+
+    if (!locked && m_zoneInCutscene)
+    {
+        m_zoneInCutscene = false;
+        ShowDebug("setLocked: fallback clear zone-in cutscene for %s (zone=%u, eventId=%d, m_zoneInCutscene %d->%d, m_Locked %d->%d)",
+                  getName(),
+                  getZone(),
+                  currentEvent->eventId,
+                  previousZoneInCutscene,
+                  m_zoneInCutscene,
+                  previousLocked,
+                  m_Locked);
+    }
+    else if (previousLocked != m_Locked || previousZoneInCutscene != m_zoneInCutscene)
+    {
+        ShowDebug("setLocked: state transition for %s (zone=%u, eventId=%d, m_zoneInCutscene %d->%d, m_Locked %d->%d)",
+                  getName(),
+                  getZone(),
+                  currentEvent->eventId,
+                  previousZoneInCutscene,
+                  m_zoneInCutscene,
+                  previousLocked,
+                  m_Locked);
+    }
+
     if (locked)
     {
         // Player and pet enmity are handled in mobcontroler.cpp, CheckLock() fucntion.
